@@ -57,10 +57,14 @@ const containerStyle = {
 bridge
   .send('VKWebAppGyroscopeStart')
   .then(data => {
-    alert(data.x, data.y, data.z)
+    if(data.result === true) {
+      console.log('Supported')
+    } else {
+      console.log('Not supported')
+    }
   })
   .catch(error => {
-    alert(error)
+    console.log(error)
   });
 
 class Example extends React.Component {
