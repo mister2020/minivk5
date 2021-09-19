@@ -1,5 +1,5 @@
 {
-  "homepage": "http://mister2020.github.io/minivk2/",
+  "homepage": "http://mister2020.github.io/minivk5/",
   "name": "mini-app",
   "version": "1.0.0",
   "private": true,
@@ -28,6 +28,8 @@
     "@vkontakte/vkjs": "^0.22.1",
     "@vkontakte/vkui": "^4.15.0",
     "gh-pages": "^3.2.3",
+    "konva": "^8.1.4",
+    "react-konva": "^17.0.2-5",
     "vercel": "^23.1.2",
     "vercel-sapper": "^0.44.0"
   },

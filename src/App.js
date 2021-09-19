@@ -19,152 +19,127 @@ import {
   ModalDismissButton,
   Button,
   Div,
-  Title
+  Title,
+  Touch
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
+import bridge from '@vkontakte/vk-bridge';
+
+
+bridge.send("VKWebAppInit", {}); 
+bridge.subscribe((e) => console.log(e));
+
+bridge.send("VKWebAppInit", {});
+
+if (bridge.supports("VKWebAppResizeWindow")) {
+    bridge.send("VKWebAppResizeWindow", {"width": 800, "height": 1000});
+}
+
+
+const circleStyle = {
+  width: 40,
+  height: 40,
+  borderRadius: '50%',
+  background: 'var(--accent)',
+  position: 'absolute',
+  left: '50%',
+  top: '50%',
+  marginLeft: -20,
+  marginTop: -20
+}
+
+const containerStyle = {
+  height: 200,
+  border: '8px solid var(--icon_secondary)',
+  position: 'relative'
+}
+
+bridge
+  .send('VKWebAppGyroscopeStart')
+  .then(data => {
+    alert(data.x, data.y, data.z)
+  })
+  .catch(error => {
+    alert(error)
+  });
+
+class Example extends React.Component {
+
+
+  constructor (props) {
+
+    super(props);
+
+    this.state = {
+      shiftX: 0,
+      shiftY: 50
+    }
+
+    this.startX = 0;
+    this.startY = 50;
+
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+    this.getCircleRef = this.getCircleRef.bind(this);
+  }
+
+  componentDidMount () {
+    this.limitX = this.circleRef.offsetLeft;
+    this.limitY = this.circleRef.offsetTop;
+  }
+
+  onMove (e) {
+    let shiftX = this.startX + e.shiftX;
+    let shiftY = this.startY + e.shiftY;
+
+    this.setState({
+      shiftX: shiftX > this.limitX ? this.limitX : shiftX < -this.limitX ? -this.limitX : shiftX,
+      shiftY: shiftY > this.limitY ? this.limitY : shiftY < -this.limitY ? -this.limitY : shiftY,
+    });
+  }
+
+  onEnd (e) {
+    this.startX += e.shiftX;
+    this.startY += e.shiftY;
+  }
+
+  getCircleRef (el) { this.circleRef = el };
+
+  get limitExceeded () {
+    const { shiftX, shiftY } = this.state;
+    return Math.abs(shiftX) >= this.limitX || Math.abs(shiftY) >= this.limitY
+  }
+
+  render () {
+    const { shiftX, shiftY, limitExceeded } = this.state;
+
+    return (
+      <View activePanel="gallery">
+        <Panel id="gallery">
+          <Group header={<Header mode="secondary">Финиш</Header>}>
+            <div style={{
+              ...containerStyle,
+              borderColor: this.limitExceeded ? 'var(--destructive)' : 'var(--icon_secondary)' }}
+            >
+              <Touch
+                getRootRef={this.getCircleRef}
+                onMove={this.onMove}
+                onEnd={this.onEnd}
+                style={{ ...circleStyle, transform: `translate(${shiftX}px, ${shiftY}px)` }}
+              />
+            </div>
+          </Group>
+        </Panel>
+      </View>
+    )
+  }
+}
+
 
 
 function App() {
   const { viewWidth } = useAdaptivity();
-
-
-  //Первая модалка - Максим Терновенко
-  const CustomPopout1 = withAdaptivity(({ onClose, viewWidth }) => {
-    return (
-      <PopoutWrapper player1={onClose}>
-        <div style={{
-          backgroundColor: "var(--background_content)",
-          borderRadius: 8,
-          position: "relative",
-          padding: "12px"
-        }}>
-        <h4>Максим Терновенко, 16 лет</h4><br/>
-        <p>Frontend-Developer</p>
-        <p>Программирует уже четвёртый год, основное направление - веб-разработка</p>
-        <p>Основной стэк:</p>
-        <p>Node JS</p>
-        <p>React</p>
-        <p>PHP</p>
-        <p>Express</p>
-        <p>MySql / MongoDB</p><br/>
-        <p>VK: <a href="https://vk.com/podnebes_______________________m">@podnebes_______________________m</a></p>
-        <Div>
-          <Button onClick={onClose} size="l" stretched mode="secondary">Назад</Button>
-        </Div>
-        </div>
-      </PopoutWrapper>
-      )
-    }, {
-      viewWidth: true
-    })
-
-
-  //Вторая модалка - Артём Киселёв
-  const CustomPopout2 = withAdaptivity(({ onClose, viewWidth }) => {
-    return (
-      <PopoutWrapper player2={onClose}>
-      <div style={{
-        backgroundColor: "var(--background_content)",
-        borderRadius: 8,
-        position: "relative",
-        padding: "12px"
-      }}>
-        <h4>Артём Киселёв, 18 лет</h4><br/>
-        <p>Fullstack-Developer, DevOps</p>
-        <p>Занимается девятый год программированием, из которых 6 лет посвятил веб-разработке</p>
-        <p>Основной стэк:</p>
-        <p>PHP / Laravel | Phalcon | Swoole</p>
-        <p>GoLang / Gin</p>
-        <p>Vue.js</p>
-        <p>Webpack / SCSS / Tailwind</p>
-        <p>Docker / K8S</p><br/>
-        <p>VK: <a href="https://vk.com/aaaa0">@aaaa0</a></p>
-        <Div>
-          <Button onClick={onClose} size="l" stretched mode="secondary">Назад</Button>
-        </Div>
-      </div>
-      </PopoutWrapper>
-      )
-    }, {
-      viewWidth: true
-  })
-
-
-  //Третья модалка - Дарья Вознюк
-  const CustomPopout3 = withAdaptivity(({ onClose, viewWidth }) => {
-    return (
-    <PopoutWrapper player3={onClose}>
-    <div style={{
-      backgroundColor: "var(--background_content)",
-      borderRadius: 8,
-      position: "relative",
-      padding: "12px"
-    }}>
-      <h4>Дарья Вознюк, 20 лет</h4>
-      <p>Дизайнер, web-дизайнер</p>
-      <p>Занимается дизайном 5 лет, web-дизайном - 3 года</p>
-      <p>Основной стэк:</p>
-      <p>Figma</p>
-      <p>Sketch</p>
-      <p>Zeplin</p>
-      <p>After Effects</p>
-      <p>VK: <a href="https://vk.com/dashyliadvlalalalala">@dashyliadvlalalalala</a></p>
-      <Div>
-          <Button onClick={onClose} size="l" stretched mode="secondary">Назад</Button>
-        </Div>
-    </div>
-    </PopoutWrapper>
-    )
-  }, {
-    viewWidth: true
-  })
-
-
-  //Четвертая модалка - Олег Царев
-  const CustomPopout4 = withAdaptivity(({ onClose, viewWidth }) => {
-    return (
-      <PopoutWrapper player4={onClose}>
-      <div style={{
-      backgroundColor: "var(--background_content)",
-      borderRadius: 8,
-      position: "relative",
-      padding: "12px"
-    }}>
-        <h4>Олег Царев, 23 года</h4><br/>
-        <p>Frontend-Developer, Backend-Developer</p>
-        <p>Занимается программированием уже 8 лет, в основном Frontend-разработкой, но и Backend</p>
-        <p>Основной стэк:</p>
-        <p>PHP</p>
-        <p>Node JS</p>
-        <p>Vue.js</p>
-        <p>React</p>
-        <p>C++ / C#</p>
-        <p>MySql / MongoDB</p><br/>
-        <p>VK: <a href="https://vk.com/id276839994">@id276839994</a></p>
-        <Div>
-          <Button onClick={onClose} size="l" stretched mode="secondary">Назад</Button>
-        </Div>
-      </div>
-      </PopoutWrapper>
-    )
-    }, {
-    viewWidth: true
-  })
- 
   const [popout, setPopout] = React.useState(null);
-  
-  const player1 = () => setPopout(
-    <CustomPopout1 onClose={() => setPopout(null)} />
-  );
-  const player2 = () => setPopout(
-    <CustomPopout2 onClose={() => setPopout(null)} />
-  );
-  const player3 = () => setPopout(
-    <CustomPopout3 onClose={() => setPopout(null)} />
-  );
-  const player4 = () => setPopout(
-    <CustomPopout4 onClose={() => setPopout(null)} />
-  );
 
     const styles = {
       but: {
@@ -172,14 +147,14 @@ function App() {
         align: 'center'
       },
       title: {
-        marginTop: '5px',
+        marginTop: '50px',
         marginBottom: '5px',
         textAlign: 'center'
       },
       gr: {
         margin: '0 auto 0 auto'
       }
-    }
+    };
 
   //return
   return (
@@ -187,12 +162,9 @@ function App() {
       <SplitCol>
     <View popout={popout} activePanel="popout">
       <Panel id="popout" >
-      <Title level="1" weight="bold" style={styles.title}>Команда "Уральские монстры"</Title>
+      <Title level="1" weight="bold" style={styles.title}>Лабиринт</Title>
         <Group style={styles.gr}>
-          <CellButton onClick={player1} style={styles.but}>Максим Терновенко</CellButton>
-          <CellButton onClick={player2} style={styles.but}>Артём Киселёв</CellButton>
-          <CellButton onClick={player3} style={styles.but}>Дарья Вознюк</CellButton>
-          <CellButton onClick={player4} style={styles.but}>Олег Царев</CellButton>
+        <Example />
         </Group>
       </Panel>
     </View>
@@ -200,5 +172,7 @@ function App() {
     </SplitLayout>
   );
 }
+
+
 
 export default App;
